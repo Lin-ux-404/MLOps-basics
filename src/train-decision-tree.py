@@ -11,6 +11,7 @@ import pandas as pd
 from sklearn.metrics import confusion_matrix, roc_auc_score, roc_curve
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
+import os
 
 # get parameters
 parser = argparse.ArgumentParser("train")
@@ -49,6 +50,7 @@ X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.30, random_state=0
 )
 
+mlflow.start_run()
 # Train a decision tree model
 print('Training a decision tree model...')
 model = DecisionTreeClassifier().fit(X_train, y_train)
@@ -96,4 +98,18 @@ plt.savefig("ConfusionMatrix.png")
 mlflow.log_artifact("ConfusionMatrix.png")
 
 # Output the model and test data
-pickle.dump(model, open((Path(args.model_output_decision_tree) / "model_decision_tree.sav"), "wb"))
+# pickle.dump(model, open((Path(args.model_output_decision_tree) / "model_decision_tree.pkl"), "wb"))
+
+# mlflow.sklearn.log_model(
+#     sk_model=model,
+#     artifact_path=args.model_output_decision_tree,
+#     registered_model_name="decision_tree_diabetes_classifier"
+# )
+# Save model locally
+output_dir = os.environ.get("AZUREML_OUTPUTDIR", "./outputs")
+save_path = os.path.join(output_dir, "models/")
+mlflow.sklearn.save_model(
+    sk_model=model,
+    path=save_path
+)
+mlflow.end_run()

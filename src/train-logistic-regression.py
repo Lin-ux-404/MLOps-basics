@@ -11,6 +11,7 @@ import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix, roc_auc_score, roc_curve
 from sklearn.model_selection import train_test_split
+import os
 
 # get parameters
 parser = argparse.ArgumentParser("train")
@@ -50,6 +51,7 @@ X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.30, random_state=0
 )
 
+mlflow.start_run()
 # Train a logistic regression model
 print('Training a logistic regression model...')
 model = LogisticRegression(C=1 / args.reg_rate, solver="liblinear").fit(
@@ -99,4 +101,20 @@ plt.savefig("ConfusionMatrix.png")
 mlflow.log_artifact("ConfusionMatrix.png")
 
 # Output the model and test data
-pickle.dump(model, open((Path(args.model_output_logistic_reg) / "model_logistic_reg.sav"), "wb"))
+# pickle.dump(model, open((Path(args.model_output_logistic_reg) / "model_logistic_reg.pkl"), "wb"))
+# mlflow.set_tracking_uri("azureml://datastores/workspaceartifactstore/paths/model/")
+
+output_dir = os.environ.get("AZUREML_OUTPUTDIR", "./outputs")
+save_path = os.path.join(output_dir, "models/")
+mlflow.sklearn.save_model(
+    sk_model=model,
+    path=save_path
+)
+
+# mlflow.sklearn.log_model(
+#     sk_model=model,
+#     artifact_path=args.model_output_logistic_reg,
+#     registered_model_name="model_logistic_reg"
+# )
+
+mlflow.end_run()
