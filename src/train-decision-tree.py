@@ -106,10 +106,3 @@ mlflow.log_artifact("ConfusionMatrix.png")
 #     registered_model_name="decision_tree_diabetes_classifier"
 # )
 # Save model locally
-output_dir = os.environ.get("AZUREML_OUTPUTDIR", "./outputs")
-save_path = os.path.join(output_dir, "models/")
-mlflow.sklearn.save_model(
-    sk_model=model,
-    path=save_path
-)
-mlflow.end_run()
