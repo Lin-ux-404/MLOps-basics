@@ -11,7 +11,7 @@ outputs:
   model_output_decision_tree:
     type: uri_folder
 code: ../src
-environment: azureml:custom_conda_env@latest
+environment: azureml:damen_setup_env@latest
 command: >-
   python train-decision-tree.py 
   --training_data ${{inputs.training_data}} 
